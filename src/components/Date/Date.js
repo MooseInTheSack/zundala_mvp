@@ -7,9 +7,6 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { TimePicker } from "@mui/x-date-pickers/TimePicker";
-import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
-import { DateRangePicker } from "@mui/x-date-pickers-pro/DateRangePicker";
-import { DateTimeRangePicker } from "@mui/x-date-pickers-pro/DateTimeRangePicker";
 
 const ProSpan = styled("span")({
   display: "inline-block",
@@ -66,45 +63,6 @@ export default function CommonlyUsedComponents() {
         </DemoItem>
         <DemoItem label={<Label componentName="TimePicker" valueType="time" />}>
           <TimePicker />
-        </DemoItem>
-        <DemoItem
-          label={<Label componentName="DateTimePicker" valueType="date time" />}
-        >
-          <DateTimePicker />
-        </DemoItem>
-        <DemoItem
-          label={
-            <Label
-              componentName="DateRangePicker"
-              valueType="date range"
-              isProOnly
-            />
-          }
-          component="DateRangePicker"
-        >
-          <DateRangePicker
-            localeText={{
-              start: "",
-              end: "",
-            }}
-          />
-        </DemoItem>
-        <DemoItem
-          label={
-            <Label
-              componentName="DateTimeRangePicker"
-              valueType="date time range"
-              isProOnly
-            />
-          }
-          component="DateTimeRangePicker"
-        >
-          <DateTimeRangePicker
-            localeText={{
-              start: "",
-              end: "",
-            }}
-          />
         </DemoItem>
       </DemoContainer>
     </LocalizationProvider>
