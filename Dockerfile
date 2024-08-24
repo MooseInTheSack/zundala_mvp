@@ -6,7 +6,7 @@ WORKDIR /app
 
 # Copy package.json and yarn.lock to the container
 #COPY package.json yarn.lock ./
-COPY package.json package-lock.json
+COPY package.json package-lock.json ./
 
 # Install dependencies
 #RUN npm install
@@ -18,7 +18,7 @@ RUN npm install
 COPY . .
 
 # Build the React app
-RUN npm build
+RUN npm run build
 
 # Serve the build
 CMD ["npx", "serve", "-s", "build"]
