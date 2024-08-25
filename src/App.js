@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import logo from "./logo.svg";
 import "./App.css";
-import { Formik, Form, Field, ErrorMessage } from "formik";
 import Grid from '@mui/material/Grid';
 import axios from "axios";
+import * as Yup from 'yup';
+import { Formik, Form, Field, ErrorMessage, FormikValues, FormikHelpers } from 'formik';
+
 
 //material-ui
 import Card from '@mui/material/Card';
@@ -23,6 +25,21 @@ import { DatePickerField } from "./components/DatePicker/DatePicker";
 import "react-datepicker/dist/react-datepicker.css";
 
 function App() {
+
+  function validateHhMm(inputField) {
+    var isValid = /^([0-1]?[0-9]|2[0-4]):([0-5][0-9])(:[0-5][0-9])?$/.test(inputField);
+
+    return isValid;
+  }
+
+  const validationSchema = Yup.object().shape({
+    location: Yup.string().required('Location is required'),
+    email: Yup.string().email('Invalid email').required('Email is required'),
+    time: Yup.string()
+      .required('Time is required'),
+    date: Yup.date().required('Date is required')
+  });
+  
   const sendRequest = async (email, location, date, time) => {
     const apiDict = getAPI();
     const fullAPIURL =
@@ -62,8 +79,12 @@ function App() {
             </Typography>
           </CardContent>
           <CardActions>
-            <Button size="small">Share</Button>
-            <Button size="small">Learn More</Button>
+            <div>
+              <Button size="small">Share</Button>
+            </div>
+            <div>
+              <Button size="small">Learn More</Button>
+            </div>
           </CardActions>
         </CardActionArea>
       </Card>
@@ -125,6 +146,14 @@ function App() {
     fetchMyAPI();
 
   }, [inputData])
+
+  const handleSubmit = (values,
+    { setSubmitting }) => {
+    setTimeout(() => {
+     console.log(values);
+     setSubmitting(false);
+    }, 500);
+   }
   
   return (
     <div className="App">
@@ -147,7 +176,8 @@ function App() {
           )}
           
           <Formik
-            initialValues={{ email: "", location: "", date: "", time: "" }}
+            validationSchema={validationSchema}
+            initialValues={{ email: "youremail@gmail.com", location: "San Francisco, CA", date: "12/01/1990", time: "22:45" }}
             validate={(values) => {
               const errors = {};
               if (!values.email) {
@@ -156,29 +186,41 @@ function App() {
                 !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(values.email)
               ) {
                 errors.email = "Invalid email address";
-              }
+              } else if(values.location)
               return errors;
             }}
             onSubmit={ (values, { setSubmitting }) => {
 
                 //alert(JSON.stringify(values, null, 2));
                 if(values && values.email && values.location && values.date && values.time) {
-                  setInputData({ email: values.email, location: values.location, date: values.date, time: values.time})
-                  setSubmitting(false);
-                  /* code below works but does not wait...
-                  sendRequest(values.email, values.location, values.date, values.time).then((results => {
-                    console.log('ducky results from the server: ', results)
-                    const degreesObject = results && results.data ?  getDegreesForPlanets(results.data) : {};
-                    //alert(JSON.stringify(degreesObject))
-
-                    combineDegreesAndReadings(degreesObject).then((degreesAndReadings) => {
-                      //alert(degreesAndReadings);
-                      console.log('setting test to: ', degreesAndReadings)
-                      setTest(degreesAndReadings);
+                  
+                  //check if it is a valid date
+                  let dateObj = new Date(values.date);
+                  if(dateObj) {
+                    
+                    if(validateHhMm(values.time)) {
+                      setInputData({ email: values.email, location: values.location, date: values.date, time: values.time})
                       setSubmitting(false);
-                    })
-                  }))
-                  */
+                      /* code below works but does not wait...
+                      sendRequest(values.email, values.location, values.date, values.time).then((results => {
+                        console.log('ducky results from the server: ', results)
+                        const degreesObject = results && results.data ?  getDegreesForPlanets(results.data) : {};
+                        //alert(JSON.stringify(degreesObject))
+
+                        combineDegreesAndReadings(degreesObject).then((degreesAndReadings) => {
+                          //alert(degreesAndReadings);
+                          console.log('setting test to: ', degreesAndReadings)
+                          setTest(degreesAndReadings);
+                          setSubmitting(false);
+                        })
+                      }))
+                      */
+                    } else {
+                      console.warn("Invalid time entered... ", values.time)
+                    }
+                  } else {
+                    console.warn('invalid date: ', dateObj)
+                  }
                 } else {
                   alert("Error... did not send all required values (email, date, location, time)")
                   setSubmitting(false);
@@ -188,7 +230,7 @@ function App() {
 
             }}
           >
-            {({ isSubmitting }) => (
+            {({ isSubmitting, errors, handleSubmit }) => (
               <Form>
                 <Grid container spacing={2}>
                   <Grid item xs={12}>
@@ -200,16 +242,22 @@ function App() {
                   <Grid item xs={12}>
                     <label className="label-text" htmlFor="location">City and State of Birth</label>
                     <Field type="text" name="location" />
+                    <ErrorMessage name="location" component="div" />
                   </Grid>
 
                   <Grid item xs={12}>
                     <label className="label-text" htmlFor="time">Time of Birth</label>
+                    
                     <Field type="text" name="time" />
+                    <br />
+                    <label className="small-label-text">Pleae use Military Time (e.g. instead of 5:30pm, enter 17:30) </label>
+                    <ErrorMessage name="time" component="div" />
                   </Grid>
                   
                   <Grid item xs={12}>
                     <label className="label-text" htmlFor="date">Date of Birth</label>
                     <DatePickerField name="date" />
+                    <ErrorMessage name="date" component="div" />
                   </Grid>
                   <Grid item xs={12}>
                     <button type="submit" disabled={isSubmitting}>

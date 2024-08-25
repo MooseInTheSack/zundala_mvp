@@ -42,6 +42,10 @@
   padding-right: 5px;
 }
 
+.small-label-text {
+  font-size: 16px;
+}
+
 .card-container {
 }
 
@@ -61,3 +65,13 @@ padding-bottom: 24px;
   padding-top: 48px;
   padding-bottom: 48px;
 }
+
+.input-err {
+  border: 1px solid red;
+ }
+ 
+ .error {
+   color: red;
+   font-size: 0.8rem;
+   margin-top: 0.2rem;
+ }
