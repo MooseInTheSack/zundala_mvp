@@ -12,7 +12,7 @@ const planetsToSigns = {
     saturn: "capricorn",
     uranus: "aquarius",
     neptune: "pisces",
-    pluto: "aires",
+    pluto: "aries",
     chiron: "leo", //??? Placeholder ???
     sirius: "leo" //??? Placeholder ???
 }
@@ -45,13 +45,12 @@ export const combineDegreesAndReadings = async (degreesObject) => {
             const arrayOfSignReadings = result.data.data
             const degreeNumber = degreesObject[planet];
             let whichReading = arrayOfSignReadings.find((readingToCheck) => readingToCheck.Degree === degreeNumber)
-            console.log('whichReading: ', whichReading)
             degreeWithReading.push({ [planet]: [whichReading] })
         } else {
             console.error("Error finding data for sign: ", whichSign)
         }
     }
-    console.log('ducky degreeWithReading: ', degreeWithReading)
+    //console.log('ducky degreeWithReading: ', degreeWithReading)
     return degreeWithReading;
 
 }
