@@ -10,7 +10,7 @@ export const getDegreesForPlanets = (ephemerisObject) => {
 
         for (const planet in planetsDict) {
             //console.log(`${planet}: ${planetsDict[planet]['apparentLongitudeDms30']}`);
-            dictToReturn[planet] = translateLongitudeString(planetsDict[planet]['apparentLongitudeDms30'])
+            dictToReturn[planet] = translateLongitudeString(planetsDict[planet]['apparentLongitudeDms360'])
         }
 
         return dictToReturn;

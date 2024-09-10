@@ -71,7 +71,6 @@ function App() {
   };
 
   const getImageForSign = (whichPlanet) => {
-    console.log('whichPlanet: ', whichPlanet)
     switch (whichPlanet) {
       case "sun": 
         return leo;
@@ -102,7 +101,7 @@ function App() {
     }
   }
 
-  const createCardForDisplay = (degreeNumber, house, quickDesc, fullDesc) => {
+  const createCardForDisplay = (house, degreeNumber, planet, quickDesc, fullDesc) => {
     return (
       <div className="card-wrapper">
         <Card className="card" sx={{ maxWidth: 600 }}>
@@ -110,12 +109,12 @@ function App() {
           <CardMedia
             component="img"
             height="140"
-            image={getImageForSign(house)}
+            image={getImageForSign(planet)}
             alt="green iguana"
           />
           <CardContent>
             <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
-              { quickDesc }
+              { planet }
             </Typography>
             <Typography gutterBottom variant="h5" component="div">
               {degreeNumber}{ "° House of "}{house}
@@ -140,16 +139,32 @@ function App() {
 
   const displaySigns = (signObject) => {
     const keys = Object.keys(signObject);
+    
+    if (keys && keys.length === 1) {
+      const degreeNumber = signObject[keys[0]].data["Degree"];
+      const quickDesc = signObject[keys[0]].data["Title Keywords"];
+      const fullDesc = signObject[keys[0]].data["Interpretation"];
+      const houseName = signObject[keys[0]]['house']
+      const planet = keys[0];
+
+      return (
+        createCardForDisplay(houseName, degreeNumber, planet, quickDesc, fullDesc)
+      )
+    }
+
+    /*
     if (keys && keys.length === 1 && Array.isArray(signObject[keys[0]]) && signObject[keys[0]][0] && signObject[keys[0]][0]["Degree"]) {
       //console.log('ducky signObject[keys[0]][0]: ', signObject[keys[0]][0])
       
       const degreeNumber = signObject[keys[0]][0]["Degree"];
       const quickDesc = signObject[keys[0]][0]["Title Keywords"];
       const fullDesc = signObject[keys[0]][0]["Interpretation"];
+      const houseName = signObject['house']
       return (
-        createCardForDisplay(degreeNumber, keys[0], quickDesc, fullDesc)
+        createCardForDisplay(houseName, degreeNumber, keys[0], quickDesc, fullDesc)
       )
     }
+    */
 
   }
 
@@ -157,7 +172,6 @@ function App() {
   const [ inputData, setInputData] = useState({})
 
   useEffect(() => {
-    console.warn("inside of inputData useEffect!!!")
     async function fetchMyAPI() {
       if(inputData.email && inputData.location && inputData.date && inputData.time) {
         sendRequest(inputData.email, inputData.location, inputData.date, inputData.time).then((results => {
