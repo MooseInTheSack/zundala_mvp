@@ -26,6 +26,9 @@ import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
 import { CardActionArea, CardActions, Button } from '@mui/material';
+import Link from '@mui/material/Link';
+import Container from "@mui/material/Container";
+
 
 import { getAPI } from "./utils/getAPI";
 import { getDegreesForPlanets } from "./utils/getDegreesForPlanets";
@@ -37,6 +40,19 @@ import { MenuBar } from "./components/MenuBar/MenuBar";
 
 
 import "react-datepicker/dist/react-datepicker.css";
+
+function Copyright() {
+  return (
+    <Typography variant="body2" color="textSecondary">
+      {"Copyright © "}
+      <Link color="inherit" href="https://www.facebook.com/zundalaapp/">
+        Zundala's Facebook Page
+      </Link>{" "}
+      {new Date().getFullYear()}
+      {"."}
+    </Typography>
+  );
+}
 
 function App() {
 
@@ -72,30 +88,30 @@ function App() {
 
   const getImageForSign = (whichPlanet) => {
     switch (whichPlanet) {
-      case "sun": 
+      case "leo": 
         return leo;
-      case "mercury": 
+      case "virgo": 
         return virgo;
-      case "venus": 
+      case "libra": 
         return libra;
-      case "moon": 
+      case "cancer": 
         return cancer;
-      case "mars": 
+      case "scorpio": 
         return scorpio;
-      case "jupiter": 
+      case "sagittarius": 
         return sagittarius;
-      case "saturn": 
+      case "capricorn": 
         return capricorn;
-      case "uranus": 
+      case "aquarius": 
         return aquarius;
-      case "neptune": 
+      case "pisces": 
         return pisces;
-      case "pluto": 
+      case "aries": 
         return aries;
-      case "chiron": 
-        return leo; //??? Placeholder ???
-      case "sirius": 
-        return aquarius;//??? Placeholder ???
+      case "gemini": 
+        return gemini;
+      case "taurus": 
+        return taurus;
       default: 
         return "https://upload.wikimedia.org/wikipedia/commons/f/fd/Sign_cusps.png"
     }
@@ -104,12 +120,12 @@ function App() {
   const createCardForDisplay = (house, degreeNumber, planet, quickDesc, fullDesc) => {
     return (
       <div className="card-wrapper">
-        <Card className="card" sx={{ maxWidth: 600 }}>
+        <Card key={planet} className="card" sx={{ maxWidth: 600 }}>
         <CardActionArea>
           <CardMedia
             component="img"
             height="140"
-            image={getImageForSign(planet)}
+            image={getImageForSign(house)}
             alt="green iguana"
           />
           <CardContent>
@@ -207,7 +223,7 @@ function App() {
         <Typography variant="h1" component="h1">
                 Zundala Tester
               </Typography>
-          { test && (
+          { test && test.length > 0 && (
             <div className="card-container">
               <Typography className="results-header" variant="h3" component="h3">
                 Below Are Your Zundala Readings
@@ -321,6 +337,14 @@ function App() {
           </Formik>
         </div>
       </header>
+      <footer className={"footer"}>
+        <Container maxWidth="sm">
+          <Typography variant="body1">
+            Thank you for using Zundala's Testing Website
+          </Typography>
+          <Copyright />
+        </Container>
+      </footer>
     </div>
   );
 }
