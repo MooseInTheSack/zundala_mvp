@@ -37,6 +37,9 @@
   }
 }
 
+.page-container {
+}
+
 .label-text {
   padding-left: 5px;
   padding-right: 5px;
@@ -90,4 +93,11 @@ padding-bottom: 24px;
 
 .paper-container {
   padding-bottom: 20px;
+}
+
+.title-container {
+  padding-left: 10%;
+  padding-right: 10%;
+  padding-bottom: 20px;
+
 }

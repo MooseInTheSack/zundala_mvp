@@ -5,11 +5,10 @@ import Grid from '@mui/material/Grid';
 import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
-import TextField from '@mui/material/TextField';
 
 import axios from "axios";
 import * as Yup from 'yup';
-import { Formik, Form, Field, ErrorMessage, FormikValues, FormikHelpers } from 'formik';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
 
 import leo from "./images/sign_symbols/leo.png"
 import pisces from "./images/sign_symbols/pisces.png"
@@ -37,7 +36,6 @@ import Container from "@mui/material/Container";
 
 import { getAPI } from "./utils/getAPI";
 import { getDegreesForPlanets } from "./utils/getDegreesForPlanets";
-import { translateDegreesToReadings } from "./utils/translateDegreesToReadings";
 import { combineDegreesAndReadings } from "./utils/combineDegreesAndReadings";
 
 import { DatePickerField } from "./components/DatePicker/DatePicker";
@@ -241,10 +239,17 @@ function App() {
       <MenuBar />
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
-        <div>
-        <Typography variant="h1" component="h1">
-                Zundala Tester
-              </Typography>
+        <div className="page-container">
+          <div className="title-container">
+            <Typography variant="h2" component="h2">Zundala Tester</Typography>
+          </div>
+
+          <div className="title-container">
+            <Typography variant="h5" component="h1">
+              Enter Your Birth Information Below to Obtain Your Zundala Readings
+            </Typography>
+          </div>
+
           <Box className="box-container">
             <Paper elevation={3} className="paper-container">
               <Formik
@@ -315,30 +320,43 @@ function App() {
                     <Grid container spacing={2}>
                       <Grid item xs={12}>
                         <label className="label-text" htmlFor="email">Email Address</label>
+                      </Grid>
+                      <Grid item xs={12}>
                         <Field type="email" name="email" />
                         <ErrorMessage name="email" component="div" />
                       </Grid>
 
                       <Grid item xs={12}>
                         <label className="label-text" htmlFor="location">City and State of Birth</label>
+                      </Grid>
+
+                      <Grid item xs={12}>
                         <Field type="text" name="location" />
                         <ErrorMessage name="location" component="div" />
                       </Grid>
 
                       <Grid item xs={12}>
                         <label className="label-text" htmlFor="time">Time of Birth</label>
-                        
+                      </Grid>
+
+                      <Grid item xs={12}>
                         <Field type="text" name="time" />
-                        <br />
-                        <label className="small-label-text">Pleae use Military Time (e.g. instead of 5:30pm, enter 17:30) </label>
+                      </Grid>
+
+                      <Grid item xs={12}>
+                        <label className="small-label-text">Please use Military Time (e.g. instead of 5:30pm, enter 17:30) </label>
                         <ErrorMessage name="time" component="div" />
                       </Grid>
                       
                       <Grid item xs={12}>
                         <label className="label-text" htmlFor="date">Date of Birth</label>
+                      </Grid>
+
+                      <Grid item xs={12}>
                         <DatePickerField name="date" />
                         <ErrorMessage name="date" component="div" />
                       </Grid>
+
                       <Grid item xs={12}>
                         <button onClick={(event)=> {setIsLoading(true)}}type="submit" disabled={isSubmitting}>
                           Submit
