@@ -62,7 +62,6 @@ const planetsToSigns = {
     neptune: "pisces",
     pluto: "aries",
     chiron: "leo", //??? Placeholder ???
-    sirius: "leo" //??? Placeholder ???
 }
 
 const sendRequest = async (whichSign) => {
@@ -71,7 +70,7 @@ const sendRequest = async (whichSign) => {
       apiDict.zundala_server_readings + "?sign=" + whichSign;
 
     const response = await axios.get(fullAPIURL).catch((err) => {
-        console.log(err)
+        console.error(err)
     });
 
     if (response) {
@@ -86,6 +85,9 @@ export const combineDegreesAndReadings = async (degreesObject) => {
     //input is a dict that looks like <planet>: <degree string>
     const degreeWithReading = [];
     for( const planet in degreesObject) {
+        if(planet === "sirius") {
+            break;
+        }
         //let whichSign = planetsToSigns[planet];
         let degreeNumber = degreesObject[planet];
         let whichSign = getHouseFromLongitude(degreeNumber);

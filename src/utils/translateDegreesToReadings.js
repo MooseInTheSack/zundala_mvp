@@ -3,7 +3,6 @@ import axios from "axios";
 import { getAPI } from "./getAPI";
 
 export const translateDegreesToReadings = async (whichSign, degreeNumber) => {
-    //console.log('zundala_data: ', zundala_data);
     const apiDict = getAPI();
     const readingsURL = apiDict.zundala_server_readings
 
@@ -11,7 +10,7 @@ export const translateDegreesToReadings = async (whichSign, degreeNumber) => {
         readingsURL + "?sign="+whichSign;
 
     const response = await axios.get(fullAPIURL).catch((err) => {
-        console.log(err)
+        console.error(err)
     });
 
     if (response && response.data && response.data.data) {

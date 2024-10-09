@@ -2,6 +2,11 @@ import { useState, useEffect } from "react";
 import logo from "./logo.svg";
 import "./App.css";
 import Grid from '@mui/material/Grid';
+import CircularProgress from '@mui/material/CircularProgress';
+import Box from '@mui/material/Box';
+import Paper from '@mui/material/Paper';
+import TextField from '@mui/material/TextField';
+
 import axios from "axios";
 import * as Yup from 'yup';
 import { Formik, Form, Field, ErrorMessage, FormikValues, FormikHelpers } from 'formik';
@@ -54,6 +59,12 @@ function Copyright() {
   );
 }
 
+function capitalizeFirstLetter(string) {
+  const cap = string.charAt(0).toUpperCase() + string.slice(1);
+  console.log('ducky cap: ', cap)
+  return cap;
+}
+
 function App() {
 
   function validateHhMm(inputField) {
@@ -71,6 +82,7 @@ function App() {
   });
   
   const sendRequest = async (email, location, date, time) => {
+    
     const apiDict = getAPI();
     const fullAPIURL =
       apiDict.zundala_server_data + "?email="+email+"&location="+location+"&date="+date+"&time="+time;
@@ -120,20 +132,20 @@ function App() {
   const createCardForDisplay = (house, degreeNumber, planet, quickDesc, fullDesc) => {
     return (
       <div className="card-wrapper">
-        <Card key={planet} className="card" sx={{ maxWidth: 600 }}>
+        <Card key={capitalizeFirstLetter(planet)} className="card" sx={{ maxWidth: 600 }}>
         <CardActionArea>
           <CardMedia
             component="img"
-            height="140"
+            height="280"
             image={getImageForSign(house)}
             alt="green iguana"
           />
           <CardContent>
             <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
-              { planet }
+              { capitalizeFirstLetter(planet) }
             </Typography>
             <Typography gutterBottom variant="h5" component="div">
-              {degreeNumber}{ "° House of "}{house}
+              {degreeNumber}{ "° "}{capitalizeFirstLetter(house)}
             </Typography>
             <Typography variant="body2" color="text.secondary">
               { fullDesc }
@@ -187,10 +199,13 @@ function App() {
   const [ test, setTest] = useState([]);
   const [ inputData, setInputData] = useState({})
 
+  const [ isLoading, setIsLoading] = useState(false);
+
   useEffect(() => {
     async function fetchMyAPI() {
       if(inputData.email && inputData.location && inputData.date && inputData.time) {
         sendRequest(inputData.email, inputData.location, inputData.date, inputData.time).then((results => {
+
           const degreesObject = results && results.data ?  getDegreesForPlanets(results.data) : {};
 
           combineDegreesAndReadings(degreesObject).then((degreesAndReadings) => {
@@ -205,6 +220,14 @@ function App() {
     fetchMyAPI();
 
   }, [inputData])
+  
+  /*
+  useEffect(() => {
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 3000)
+  }, []);
+  */
 
   const handleSubmit = (values,
     { setSubmitting }) => {
@@ -218,11 +241,121 @@ function App() {
       <MenuBar />
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
-
         <div>
         <Typography variant="h1" component="h1">
                 Zundala Tester
               </Typography>
+          <Box className="box-container">
+            <Paper elevation={3} className="paper-container">
+              <Formik
+                validationSchema={validationSchema}
+                initialValues={{ email: "youremail@gmail.com", location: "San Francisco, CA", date: "12/01/1990", time: "22:45" }}
+                validate={(values) => {
+                  
+                  let dateObj = new Date(values.date);
+                  const errors = {};
+                  if (!values.email) {
+                    errors.email = "Required";
+                  } else if (
+                    !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(values.email)
+                  ) {
+                    errors.email = "Invalid email address";
+                  } else if(!validateHhMm(values.time)) {
+                    errors.time = "Invalid time...";
+                  } else if(isNaN(dateObj) || !dateObj) {
+                    errors.date = "Invalid Date"
+                  } else if (values.location && values.location.indexOf(',') <= 0){
+                    errors.location = "Invalid location"
+                  }
+                  return errors;
+                }}
+                onSubmit={ (values, { setSubmitting }) => {
+
+                    //alert(JSON.stringify(values, null, 2));
+                    if(values && values.email && values.location && values.date && values.time) {
+                      
+                      //check if it is a valid date
+                      let dateObj = new Date(values.date);
+                      if(dateObj) {
+                        
+                        if(validateHhMm(values.time)) {
+                          setInputData({ email: values.email, location: values.location, date: values.date, time: values.time})
+                          setSubmitting(false);
+                          /* code below works but does not wait...
+                          sendRequest(values.email, values.location, values.date, values.time).then((results => {
+                            console.log('ducky results from the server: ', results)
+                            const degreesObject = results && results.data ?  getDegreesForPlanets(results.data) : {};
+                            //alert(JSON.stringify(degreesObject))
+
+                            combineDegreesAndReadings(degreesObject).then((degreesAndReadings) => {
+                              //alert(degreesAndReadings);
+                              console.log('setting test to: ', degreesAndReadings)
+                              setTest(degreesAndReadings);
+                              setSubmitting(false);
+                            })
+                          }))
+                          */
+                        } else {
+                          console.warn("Invalid time entered... ", values.time)
+                        }
+                      } else {
+                        console.warn('invalid date: ', dateObj)
+                      }
+                    } else {
+                      alert("Error... did not send all required values (email, date, location, time)")
+                      setSubmitting(false);
+                    }
+
+                    //call api (zundala & ephemeris reading...)
+
+                }}
+              >
+                {({ isSubmitting, errors, handleSubmit }) => (
+                  <Form onSubmit={handleSubmit}>
+                    <Grid container spacing={2}>
+                      <Grid item xs={12}>
+                        <label className="label-text" htmlFor="email">Email Address</label>
+                        <Field type="email" name="email" />
+                        <ErrorMessage name="email" component="div" />
+                      </Grid>
+
+                      <Grid item xs={12}>
+                        <label className="label-text" htmlFor="location">City and State of Birth</label>
+                        <Field type="text" name="location" />
+                        <ErrorMessage name="location" component="div" />
+                      </Grid>
+
+                      <Grid item xs={12}>
+                        <label className="label-text" htmlFor="time">Time of Birth</label>
+                        
+                        <Field type="text" name="time" />
+                        <br />
+                        <label className="small-label-text">Pleae use Military Time (e.g. instead of 5:30pm, enter 17:30) </label>
+                        <ErrorMessage name="time" component="div" />
+                      </Grid>
+                      
+                      <Grid item xs={12}>
+                        <label className="label-text" htmlFor="date">Date of Birth</label>
+                        <DatePickerField name="date" />
+                        <ErrorMessage name="date" component="div" />
+                      </Grid>
+                      <Grid item xs={12}>
+                        <button onClick={(event)=> {setIsLoading(true)}}type="submit" disabled={isSubmitting}>
+                          Submit
+                        </button>
+                      </Grid>
+                    </Grid>
+                  </Form>
+                )}
+              </Formik>
+            </Paper>
+          </Box>
+          { isLoading && test && (test.length < 1) && (
+            <div>
+              <br />
+              <CircularProgress size={40} />
+            </div>
+          )}
           { test && test.length > 0 && (
             <div className="card-container">
               <Typography className="results-header" variant="h3" component="h3">
@@ -233,108 +366,6 @@ function App() {
               )})}
             </div>
           )}
-          
-          <Formik
-            validationSchema={validationSchema}
-            initialValues={{ email: "youremail@gmail.com", location: "San Francisco, CA", date: "12/01/1990", time: "22:45" }}
-            validate={(values) => {
-              
-              let dateObj = new Date(values.date);
-              const errors = {};
-              if (!values.email) {
-                errors.email = "Required";
-              } else if (
-                !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(values.email)
-              ) {
-                errors.email = "Invalid email address";
-              } else if(!validateHhMm(values.time)) {
-                errors.time = "Invalid time...";
-              } else if(isNaN(dateObj) || !dateObj) {
-                errors.date = "Invalid Date"
-              } else if (values.location && values.location.indexOf(',') <= 0){
-                errors.location = "Invalid location"
-              }
-              return errors;
-            }}
-            onSubmit={ (values, { setSubmitting }) => {
-
-                //alert(JSON.stringify(values, null, 2));
-                if(values && values.email && values.location && values.date && values.time) {
-                  
-                  //check if it is a valid date
-                  let dateObj = new Date(values.date);
-                  if(dateObj) {
-                    
-                    if(validateHhMm(values.time)) {
-                      setInputData({ email: values.email, location: values.location, date: values.date, time: values.time})
-                      setSubmitting(false);
-                      /* code below works but does not wait...
-                      sendRequest(values.email, values.location, values.date, values.time).then((results => {
-                        console.log('ducky results from the server: ', results)
-                        const degreesObject = results && results.data ?  getDegreesForPlanets(results.data) : {};
-                        //alert(JSON.stringify(degreesObject))
-
-                        combineDegreesAndReadings(degreesObject).then((degreesAndReadings) => {
-                          //alert(degreesAndReadings);
-                          console.log('setting test to: ', degreesAndReadings)
-                          setTest(degreesAndReadings);
-                          setSubmitting(false);
-                        })
-                      }))
-                      */
-                    } else {
-                      console.warn("Invalid time entered... ", values.time)
-                    }
-                  } else {
-                    console.warn('invalid date: ', dateObj)
-                  }
-                } else {
-                  alert("Error... did not send all required values (email, date, location, time)")
-                  setSubmitting(false);
-                }
-
-                //call api (zundala & ephemeris reading...)
-
-            }}
-          >
-            {({ isSubmitting, errors, handleSubmit }) => (
-              <Form onSubmit={handleSubmit}>
-                <Grid container spacing={2}>
-                  <Grid item xs={12}>
-                    <label className="label-text" htmlFor="email">Email Address</label>
-                    <Field type="email" name="email" />
-                    <ErrorMessage name="email" component="div" />
-                  </Grid>
-
-                  <Grid item xs={12}>
-                    <label className="label-text" htmlFor="location">City and State of Birth</label>
-                    <Field type="text" name="location" />
-                    <ErrorMessage name="location" component="div" />
-                  </Grid>
-
-                  <Grid item xs={12}>
-                    <label className="label-text" htmlFor="time">Time of Birth</label>
-                    
-                    <Field type="text" name="time" />
-                    <br />
-                    <label className="small-label-text">Pleae use Military Time (e.g. instead of 5:30pm, enter 17:30) </label>
-                    <ErrorMessage name="time" component="div" />
-                  </Grid>
-                  
-                  <Grid item xs={12}>
-                    <label className="label-text" htmlFor="date">Date of Birth</label>
-                    <DatePickerField name="date" />
-                    <ErrorMessage name="date" component="div" />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <button type="submit" disabled={isSubmitting}>
-                      Submit
-                    </button>
-                  </Grid>
-                </Grid>
-              </Form>
-            )}
-          </Formik>
         </div>
       </header>
       <footer className={"footer"}>
