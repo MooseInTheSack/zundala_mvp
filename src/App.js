@@ -59,7 +59,6 @@ function Copyright() {
 
 function capitalizeFirstLetter(string) {
   const cap = string.charAt(0).toUpperCase() + string.slice(1);
-  console.log('ducky cap: ', cap)
   return cap;
 }
 
@@ -86,7 +85,7 @@ function App() {
       apiDict.zundala_server_data + "?email="+email+"&location="+location+"&date="+date+"&time="+time;
 
     const response = await axios.get(fullAPIURL).catch((err) => {
-        console.log(err)
+        console.error(err)
     });
 
     if (response) {
@@ -127,7 +126,7 @@ function App() {
     }
   }
 
-  const createCardForDisplay = (house, degreeNumber, planet, quickDesc, fullDesc) => {
+  const createCardForDisplay = (house, degreeNumber, minutes, planet, quickDesc, fullDesc) => {
     return (
       <div className="card-wrapper">
         <Card key={capitalizeFirstLetter(planet)} className="card" sx={{ maxWidth: 600 }}>
@@ -143,7 +142,7 @@ function App() {
               { capitalizeFirstLetter(planet) }
             </Typography>
             <Typography gutterBottom variant="h5" component="div">
-              {degreeNumber}{ "° "}{capitalizeFirstLetter(house)}
+              {degreeNumber}{ "° "}{minutes}{" "}{capitalizeFirstLetter(house)}
             </Typography>
             <Typography variant="body2" color="text.secondary">
               { fullDesc }
@@ -165,17 +164,25 @@ function App() {
 
   const displaySigns = (signObject) => {
     const keys = Object.keys(signObject);
+
     
     if (keys && keys.length === 1) {
-      const degreeNumber = signObject[keys[0]].data["Degree"];
-      const quickDesc = signObject[keys[0]].data["Title Keywords"];
-      const fullDesc = signObject[keys[0]].data["Interpretation"];
-      const houseName = signObject[keys[0]]['house']
-      const planet = keys[0];
+      if(!keys[0].includes("_minutes")) {
+          
+        
+        const degreeNumber = signObject[keys[0]].data["Degree"];
+        const quickDesc = signObject[keys[0]].data["Title Keywords"];
+        const fullDesc = signObject[keys[0]].data["Interpretation"];
+        const houseName = signObject[keys[0]]['house']
+        const planet = keys[0];
 
-      return (
-        createCardForDisplay(houseName, degreeNumber, planet, quickDesc, fullDesc)
-      )
+        const minutes = signObject[keys[0]]['minutes']
+
+        //TODO: filter out the $(planet)_minutes
+        return (
+          createCardForDisplay(houseName, degreeNumber, minutes, planet, quickDesc, fullDesc)
+        )
+      }
     }
 
     /*

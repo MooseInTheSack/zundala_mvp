@@ -50,18 +50,20 @@ const getHouseFromLongitude = (degreeNumber) => {
     }
 }
 
-const planetsToSigns = {
-    sun: "leo",
-    mercury: "virgo",
-    venus: "libra",
-    moon: "cancer",
-    mars: "scorpio",
-    jupiter: "sagittarius",
-    saturn: "capricorn",
-    uranus: "aquarius",
-    neptune: "pisces",
-    pluto: "aries",
-    chiron: "leo", //??? Placeholder ???
+const getMinutesForPlanet = (whichPlanet, degreesObject) => {
+    if(!whichPlanet.includes("_minutes")) {
+        const minutesKeyForPlanet = whichPlanet + "_minutes";
+        if (degreesObject.hasOwnProperty(minutesKeyForPlanet)) {
+            const minutesForPlanet = degreesObject[minutesKeyForPlanet];
+            return minutesForPlanet;
+        } else {
+            console.error("Error getting minutes for planet");
+            return "";
+        }
+        
+    } else {
+        return "";
+    }
 }
 
 const sendRequest = async (whichSign) => {
@@ -85,12 +87,14 @@ export const combineDegreesAndReadings = async (degreesObject) => {
     //input is a dict that looks like <planet>: <degree string>
     const degreeWithReading = [];
     for( const planet in degreesObject) {
-        if(planet === "sirius") {
-            break;
+        
+        if(planet === "sirius" || planet.includes("_minutes")) {
+            continue;
         }
-        //let whichSign = planetsToSigns[planet];
         let degreeNumber = degreesObject[planet];
         let whichSign = getHouseFromLongitude(degreeNumber);
+
+        let minutes = getMinutesForPlanet(planet, degreesObject);
 
         const result = await sendRequest(whichSign);
         if(result && result.data && result.data.data) {
@@ -104,7 +108,7 @@ export const combineDegreesAndReadings = async (degreesObject) => {
                 let whichReading = arrayOfSignReadings.find((readingToCheck) => Number(readingToCheck.Degree) === translatedTo30)
 
                 //let stringToReturn = translatedTo30 + " Degree " + whichSign + ". " + whichReading;
-                degreeWithReading.push({ [planet]:  { title: translatedTo30 + " Degree " + whichSign, house: whichSign, threeSixtyDegree: degreesObject[planet], data: whichReading}})
+                degreeWithReading.push({ [planet]:  { title: translatedTo30 + " Degree " + whichSign, minutes: minutes, house: whichSign, threeSixtyDegree: degreesObject[planet], data: whichReading}})
             } else {
                 console.error("Error finding reading for degree")
             }
