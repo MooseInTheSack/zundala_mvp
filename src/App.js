@@ -77,12 +77,71 @@ function App() {
       .required('Time is required'),
     date: Yup.date().required('Date is required')
   });
-  
-  const sendRequest = async (email, location, date, time) => {
+
+  const getDateValuesFromString = (dateString) => {
     
+    if(dateString.length === 10){
+      return {
+        year: dateString.substring(6,10),
+        month: dateString.substring(0,2),
+        day: dateString.substring(3,5)
+      }
+
+    } else if(dateString.length === 9){
+      return {
+        year: dateString.substring(5,9),
+        month: dateString.substring(0,1),
+        day: dateString.substring(2,4)
+      }
+
+    } else {
+      return {
+        year: "NA",
+        month: "NA",
+        day: "NA"
+      }
+    }
+    
+    
+  };
+
+  const getTimeValuesFromString = (timeString) => {
+    
+    if(timeString.length === 5){
+      return {
+        hour: timeString.substring(0,2),
+        minute: timeString.substring(3,5)
+      }
+
+
+    } else if(timeString.length === 4) {
+      return {
+        hour: timeString.substring(0,1),
+        minute: timeString.substring(2,4)
+      }
+    } else {
+
+      return {
+        hour: "NA",
+        minute: "NA",
+      }
+    }
+  };
+  
+  const sendRequest = async (email, location, date, time, timezone) => {
+    
+    const dateValues = getDateValuesFromString(date);
+    const timeValues = getTimeValuesFromString(time);
+
     const apiDict = getAPI();
     const fullAPIURL =
-      apiDict.zundala_server_data + "?email="+email+"&location="+location+"&date="+date+"&time="+time;
+      apiDict.zundala_server_data + "?email="+email+"&location="+location+"&date="+date+"&time="+time+
+        "&year="+dateValues.year+
+        "&month="+dateValues.month+
+        "&day="+dateValues.day+
+        "&hour="+timeValues.hour+
+        "&minute="+timeValues.minute+
+        "&timezone="+timezone
 
     const response = await axios.get(fullAPIURL).catch((err) => {
         console.error(err)
@@ -208,8 +267,8 @@ function App() {
 
   useEffect(() => {
     async function fetchMyAPI() {
-      if(inputData.email && inputData.location && inputData.date && inputData.time) {
-        sendRequest(inputData.email, inputData.location, inputData.date, inputData.time).then((results => {
+      if(inputData.email && inputData.location && inputData.date && inputData.time && inputData.timezone) {
+        sendRequest(inputData.email, inputData.location, inputData.date, inputData.time, inputData.timezone).then((results => {
 
           const degreesObject = results && results.data ?  getDegreesForPlanets(results.data) : {};
 
@@ -261,7 +320,7 @@ function App() {
             <Paper elevation={3} className="paper-container">
               <Formik
                 validationSchema={validationSchema}
-                initialValues={{ email: "youremail@gmail.com", location: "San Francisco, CA", date: "12/01/1990", time: "22:45" }}
+                initialValues={{ email: "youremail@gmail.com", location: "Little Rock, AR", date: "12/22/1994", time: "02:45" }}
                 validate={(values) => {
                   
                   let dateObj = new Date(values.date);
@@ -291,7 +350,7 @@ function App() {
                       if(dateObj) {
                         
                         if(validateHhMm(values.time)) {
-                          setInputData({ email: values.email, location: values.location, date: values.date, time: values.time})
+                          setInputData({ email: values.email, location: values.location, date: values.date, time: values.time, timezone: values.timezone})
                           setSubmitting(false);
                           /* code below works but does not wait...
                           sendRequest(values.email, values.location, values.date, values.time).then((results => {
@@ -353,6 +412,15 @@ function App() {
                       <Grid item xs={12}>
                         <label className="small-label-text">Please use Military Time (e.g. instead of 5:30pm, enter 17:30) </label>
                         <ErrorMessage name="time" component="div" />
+                      </Grid>
+
+                      <Grid item xs={12}>
+                        <Field as="select" name="timezone">
+                          <option value="eastern">Eastern U.S. (New York, Atlanta)</option>
+                          <option value="central">Central U.S. (Chicago, Dallas)</option>
+                          <option value="mountain">Mountain U.S. (Denver, Phoenix)</option>
+                          <option value="western">Western U.S. (Los Angeles, Seattle)</option>
+                        </Field>
                       </Grid>
                       
                       <Grid item xs={12}>
