@@ -29,7 +29,8 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
-import { CardActionArea, CardActions, Button } from '@mui/material';
+import { CardActionArea, CardActions, Button, CardHeader, Avatar, IconButton } from '@mui/material';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Link from '@mui/material/Link';
 import Container from "@mui/material/Container";
 
@@ -189,6 +190,12 @@ function App() {
     return (
       <div className="card-wrapper">
         <Card key={capitalizeFirstLetter(planet)} className="card" sx={{ maxWidth: 600 }}>
+        <CardHeader
+          
+          
+          title={degreeNumber + "° " + capitalizeFirstLetter(house)}
+          subheader={capitalizeFirstLetter(planet)}
+        />
         <CardActionArea>
           <CardMedia
             component="img"
@@ -197,11 +204,8 @@ function App() {
             alt="green iguana"
           />
           <CardContent>
-            <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
-              { capitalizeFirstLetter(planet) }
-            </Typography>
             <Typography gutterBottom variant="h5" component="div">
-              {degreeNumber}{ "° "}{minutes}{" "}{capitalizeFirstLetter(house)}
+              {quickDesc}
             </Typography>
             <Typography variant="body2" color="text.secondary">
               { fullDesc }
