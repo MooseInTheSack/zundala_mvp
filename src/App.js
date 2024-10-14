@@ -81,20 +81,29 @@ function App() {
 
   const getDateValuesFromString = (dateString) => {
     
-    if(dateString.length === 10){
+    if(typeof dateString === "string" && dateString.length === 10){
       return {
         year: dateString.substring(6,10),
         month: dateString.substring(0,2),
         day: dateString.substring(3,5)
       }
 
-    } else if(dateString.length === 9){
+    } else if(typeof dateString === "string" && dateString.length === 9){
       return {
         year: dateString.substring(5,9),
         month: dateString.substring(0,1),
         day: dateString.substring(2,4)
       }
 
+    } else if(typeof dateString === "object") {
+      //date string is something like: Sun Apr 18 1971 00:00:00 GMT-0600 (Central Standard Time)
+      const dateObjToReturn = {
+        year: dateString.getFullYear(),
+        month: dateString.getMonth() + 1, //because january is returned as 0, December is 11...
+        day: dateString.getDate()
+      }
+      return dateObjToReturn;
+      
     } else {
       return {
         year: "NA",
@@ -192,8 +201,7 @@ function App() {
         <Card key={capitalizeFirstLetter(planet)} className="card" sx={{ maxWidth: 600 }}>
         <CardHeader
           
-          
-          title={degreeNumber + "° " + capitalizeFirstLetter(house)}
+          title={degreeNumber + "° " + capitalizeFirstLetter(house) + " " + minutes}
           subheader={capitalizeFirstLetter(planet)}
         />
         <CardActionArea>
@@ -420,6 +428,7 @@ function App() {
 
                       <Grid item xs={12}>
                         <Field as="select" name="timezone">
+                          <option value="none">Please Choose A Timezone Here</option>
                           <option value="eastern">Eastern U.S. (New York, Atlanta)</option>
                           <option value="central">Central U.S. (Chicago, Dallas)</option>
                           <option value="mountain">Mountain U.S. (Denver, Phoenix)</option>
